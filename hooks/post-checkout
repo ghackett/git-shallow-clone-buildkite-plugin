@@ -3,7 +3,7 @@
 set -euo pipefail
 echo "determining GIT_DEST_SHA"
 if [[ "$BUILDKITE_PULL_REQUEST" == "" || "$BUILDKITE_PULL_REQUEST" == "false" ]]; then
-  if [[ "$BUILDKITE_BRANCH" == "develop" || "$BUILDKITE_BRANCH" == "release/"* || "$BUILDKITE_BRANCH" == "gh-readonly-queue/"* ]]; then
+  if [[ "$BUILDKITE_BRANCH" == "$BUILDKITE_PIPELINE_DEFAULT_BRANCH" || "$BUILDKITE_BRANCH" == "release/"* || "$BUILDKITE_BRANCH" == "gh-readonly-queue/"* ]]; then
     echo "known branch, using parent commit"
     GIT_DEST_SHA=`git show --no-patch --format="%P" HEAD | awk '{print $1;}'`
   else
