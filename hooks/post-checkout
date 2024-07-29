@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-
+echo "determining GIT_DEST_SHA"
 if [[ "$BUILDKITE_PULL_REQUEST" == "" || "$BUILDKITE_PULL_REQUEST" == "false" ]]; then
   if [[ "$BUILDKITE_BRANCH" == "develop" || "$BUILDKITE_BRANCH" == "release/"* || "$BUILDKITE_BRANCH" == "gh-readonly-queue/"* ]]; then
+    echo "known branch, using parent commit"
     GIT_DEST_SHA=`git show --no-patch --format="%P" HEAD | awk '{print $1;}'`
   else
-    echo "default branch is $BUILDKITE_PIPELINE_DEFAULT_BRANCH"
+    echo "unknown branch, manually looking for merge-point with $BUILDKITE_PIPELINE_DEFAULT_BRANCH"
     GIT_DEST_SHA=`git merge-base --fork-point "$BUILDKITE_PIPELINE_DEFAULT_BRANCH"`
   fi
 else
+  echo "pr build, looking up from github"
   GIT_DEST_SHA=`curl -L \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer $GH_ENTERPRISE_TOKEN" \
@@ -20,5 +22,6 @@ else
 fi
 
 if [[ ! -z "$GIT_DEST_SHA" ]]; then
+  echo "GIT_DEST_SHA = $GIT_DEST_SHA"
   buildkite-agent meta-data set "GIT_DEST_SHA" "$GIT_DEST_SHA"
 fi
