@@ -10,6 +10,6 @@ BASE_SHA=`curl -L \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: Bearer $GH_ENTERPRISE_TOKEN" \
   -H "X-GitHub-Api-Version: 2022-11-28" \
-  https://$GH_HOST/api/v3/repos/reddit/Frontpage-Android/pulls/$BUILDKITE_PULL_REQUEST`
+  https://$GH_HOST/api/v3/repos/$GH_REPO/pulls/$BUILDKITE_PULL_REQUEST | jq -r '.base.sha'`
 
 echo "got response: $BASE_SHA"
