@@ -7,7 +7,7 @@ if [[ "$BUILDKITE_PULL_REQUEST" == "" || "$BUILDKITE_PULL_REQUEST" == "false" ]]
     GIT_DEST_SHA=`git show --no-patch --format="%P" HEAD | awk '{print $1;}'`
   else
     echo "default branch is $BUILDKITE_PIPELINE_DEFAULT_BRANCH"
-    git fetch $BUILDKITE_PIPELINE_DEFAULT_BRANCH
+    git fetch origin $BUILDKITE_PIPELINE_DEFAULT_BRANCH
     GIT_DEST_SHA=`git merge-base --fork-point "$BUILDKITE_PIPELINE_DEFAULT_BRANCH"`
   fi
 else
