@@ -3,16 +3,19 @@
 set -euo pipefail
 
 if [[ -z "$BUILDKITE_PULL_REQUEST" ]]; then
-  exit 0
-fi
-
-export GIT_DEST_SHA=`curl -L \
+  if [[ "$BUILDKITE_BRANCH" == "develop" || "$BUILDKITE_BRANCH" == "release/"* || "$BUILDKITE_BRANCH" == "gh-readonly-queue/"* ]]; then
+    GIT_DEST_SHA=`git show --no-patch --format="%P" HEAD | awk '{print $1;}'`
+  fi
+else
+  GIT_DEST_SHA=`curl -L \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: Bearer $GH_ENTERPRISE_TOKEN" \
   -H "X-GitHub-Api-Version: 2022-11-28" \
-  https://$GH_HOST/api/v3/repos/$GH_REPO/pulls/$BUILDKITE_PULL_REQUEST | jq -r '.base.sha'`
+  https://$GH_HOST/api/v3/repos/$GH_REPO/pulls/$BUILDKITE_PULL_REQUEST \
+  | jq -r '.base.sha'`
+fi
 
-echo "got response: $GIT_DEST_SHA"
-git fetch origin $GIT_DEST_SHA
-buildkite-agent env set "GIT_DEST_SHA=$GIT_DEST_SHA"
-buildkite-agent meta-data set "GIT_DEST_SHA" "$GIT_DEST_SHA"
+if [[ ! -z "$GIT_DEST_SHA" ]]; then
+  git fetch origin $GIT_DEST_SHA
+  buildkite-agent meta-data set "GIT_DEST_SHA" "$GIT_DEST_SHA"
+fi
