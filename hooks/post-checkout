@@ -7,19 +7,18 @@ if [[ "$BUILDKITE_PULL_REQUEST" == "" || "$BUILDKITE_PULL_REQUEST" == "false" ]]
     GIT_DEST_SHA=`git show --no-patch --format="%P" HEAD | awk '{print $1;}'`
   else
     echo "default branch is $BUILDKITE_PIPELINE_DEFAULT_BRANCH"
-    git fetch origin $BUILDKITE_PIPELINE_DEFAULT_BRANCH
-    git merge-base --fork-point "$BUILDKITE_PIPELINE_DEFAULT_BRANCH"
+    GIT_DEST_SHA=`git merge-base --fork-point "$BUILDKITE_PIPELINE_DEFAULT_BRANCH"`
   fi
 else
   GIT_DEST_SHA=`curl -L \
-  -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer $GH_ENTERPRISE_TOKEN" \
-  -H "X-GitHub-Api-Version: 2022-11-28" \
-  https://$GH_HOST/api/v3/repos/$GH_REPO/pulls/$BUILDKITE_PULL_REQUEST \
-  | jq -r '.base.sha'`
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer $GH_ENTERPRISE_TOKEN" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    https://$GH_HOST/api/v3/repos/$GH_REPO/pulls/$BUILDKITE_PULL_REQUEST \
+    | jq -r '.base.sha'`
+  git fetch origin $GIT_DEST_SHA
 fi
 
 if [[ ! -z "$GIT_DEST_SHA" ]]; then
-  git fetch origin $GIT_DEST_SHA
   buildkite-agent meta-data set "GIT_DEST_SHA" "$GIT_DEST_SHA"
 fi
