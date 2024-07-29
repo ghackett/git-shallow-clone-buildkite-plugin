@@ -5,6 +5,8 @@ set -euo pipefail
 if [[ -z "$BUILDKITE_PULL_REQUEST" ]]; then
   if [[ "$BUILDKITE_BRANCH" == "develop" || "$BUILDKITE_BRANCH" == "release/"* || "$BUILDKITE_BRANCH" == "gh-readonly-queue/"* ]]; then
     GIT_DEST_SHA=`git show --no-patch --format="%P" HEAD | awk '{print $1;}'`
+  else
+    GIT_DEST_SHA=`git merge-base --fork-point "$BUILDKITE_PIPELINE_DEFAULT_BRANCH"`
   fi
 else
   GIT_DEST_SHA=`curl -L \
