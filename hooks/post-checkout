@@ -14,4 +14,4 @@ export GIT_DEST_SHA=`curl -L \
 
 echo "got response: $GIT_DEST_SHA"
 git fetch origin $GIT_DEST_SHA
-buildkite agent env set "GIT_DEST_SHA=$GIT_DEST_SHA"
+buildkite-agent env set "GIT_DEST_SHA=$GIT_DEST_SHA"
