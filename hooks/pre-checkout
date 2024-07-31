@@ -2,6 +2,11 @@
 
 set -eo pipefail
 
+# if git_dest_sha doesn't already exist look it up from the checkout step
+if [[ -z "$GIT_DEST_SHA" ]]; then
+    export GIT_DEST_SHA=`buildkite-agent meta-data get "GIT_DEST_SHA"`
+fi
+
 if [[ ! -z "$GIT_DEST_SHA" ]]; then
   export BUILDKITE_GIT_CLONE_FLAGS="-v --depth 1"
   export BUILDKITE_GIT_FETCH_FLAGS="-v --prune --depth 1"
